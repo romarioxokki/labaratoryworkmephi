@@ -4,9 +4,11 @@ import java.util.Scanner;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Locale;
 
 public class Main {
-
+    static final Pattern PATTERNSPLIT = Pattern.compile("-?\\d+(\\.\\d+)?");
+    static final Pattern PATTERN = Pattern.compile("-?\\d+(\\.\\d+)? -?\\d+(\\.\\d+)?.*");
     public static void main(String[] args) {
 
         Scanner sc = new Scanner(System.in);
@@ -14,10 +16,10 @@ public class Main {
         do {
             System.out.print("Input string: ");
             str = sc.nextLine();
-            if (str.length() >= 17){
-               System.out.println(" The input is too long ");
-               continue;
-           }
+            if (str.length() >= 17) {
+                System.out.println(" The input is too long ");
+                continue;
+            }
             if (str.equals("q")) {
                 System.out.print("Game over!");
                 return;
@@ -26,51 +28,38 @@ public class Main {
                 System.out.println("About function");
                 continue;
             }
-            if (isNumeric(str)){
+            if (isNumeric(str)) {
                 double numb = Double.parseDouble(str);
-                double square = numb*numb;
-                System.out.printf("%.3f\n", square);
+                double square = numb * numb;
+                System.out.format(Locale.US,"%.3f\n", square);
                 double cube = Math.cbrt(numb);
-                System.out.printf("%.3f\n", cube);
+                System.out.format(Locale.US,"%.3f\n", cube);
                 continue;
             }
             float[] value = new float[2];
-            if (IsTwoNumbers(str,value)){
-                System.out.printf("%.3f\n", value[0] / value[1]);
+            if (isTwoNumbers(str)) {
+                float[] values = splitTwoNumbers(str);
+                if (value[1] == 0) {
+                    System.out.println("Cannot be divided by 0");
+                    continue;
+                }
+                System.out.format(Locale.US,"%.3f%n",  value[0] / value[1]);
                 continue;
             }
             int ans = countUniqueCharacters(str);
-            char array[] = str.toCharArray();
+            char[] array = str.toCharArray();
             Arrays.sort(array);
             System.out.println(array);
             System.out.println(ans);
-
-
         } while (true);
-
-
-
-
-
     }
-    static void ExitProg(String string) {
-        if (string == "q") {
-            System.out.print("Game over!");
-            return;
-        }
-    }
-    public static boolean IsTwoNumbers(String str, float[] chisla){
+
+    public static boolean isTwoNumbers(String str) {
         if (str == null) return false;
+        // extract into a constant
 
-        Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)? -?\\d+(\\.\\d+)?.*");
-        if (!pattern.matcher(str).matches()) return false;
+        if (!PATTERN.matcher(str).matches()) return false;
 
-        pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
-        Matcher matcher = pattern.matcher(str);
-        for(int i = 0; i < 2; i++){
-            matcher.find();
-            chisla[i] = Float.parseFloat(str.substring(matcher.start(),matcher.end()));
-        }
         return true;
     }
 
@@ -82,6 +71,17 @@ public class Main {
             return false;
         }
     }
+
+    public static float[] splitTwoNumbers(String str) {
+        float[] numbers = new float[2];
+        Matcher matcher = PATTERNSPLIT.matcher(str);
+        for (int i = 0; i < 2; i++) {
+            matcher.find();
+            numbers[i] = Float.parseFloat(str.substring(matcher.start(), matcher.end()));
+        }
+        return numbers;
+    }
+
     public static int countUniqueCharacters(String input) {
         boolean[] isItThere = new boolean[Character.MAX_VALUE];
         for (int i = 0; i < input.length(); i++) {
@@ -90,7 +90,7 @@ public class Main {
 
         int count = 0;
         for (int i = 0; i < isItThere.length; i++) {
-            if (isItThere[i] == true){
+            if (isItThere[i] == true) {
                 count++;
             }
         }
